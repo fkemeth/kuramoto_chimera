@@ -22,8 +22,17 @@ as described in their paper
 
 To integrate the system with the predefined parameters, run
 
+
     from kuramoto_chimera import integrate
     Ad = integrate()
+
+To plot the last snapshot, run
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(Ad["xx"], Ad["data"][-1])
+    plt.show()
 
 
 ISSUES

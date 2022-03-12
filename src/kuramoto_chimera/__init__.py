@@ -135,6 +135,7 @@ def integrate(
     data_dict["kappa"] = kappa
     data_dict["N"] = num_grid_points
     data_dict["t_eval"] = t_eval
+    data_dict["xx"] = np.linspace(0, 1, num_grid_points, endpoint=False)
 
     (phi, omega) = initial_conditions(num_grid_points)
     delta_y = calc_dy(kappa, num_grid_points)
