@@ -33,6 +33,8 @@ import numpy as np
 import sys
 from typing import Tuple
 
+from scipy.integrate import solve_ivp
+
 
 def initial_conditions(num_grid_points: int) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -96,7 +98,7 @@ def calc_coupling(alpha: float, delta_y: np.ndarray, phi: np.ndarray) -> np.ndar
 
 
 def f_kuramoto(
-    alpha: float, delta_y: np.ndarray, omega: np.ndarray, phi: np.ndarray
+    time: float, phi: np.ndarray, alpha: float, delta_y: np.ndarray, omega: np.ndarray
 ) -> np.ndarray:
     """
     Calculate the temporal derivative.
@@ -113,14 +115,11 @@ def f_kuramoto(
 def integrate(
     kappa: float = 4.0,
     alpha: float = 1.457,
-    delta_t: float = 0.01,
-    tmin: float = 500,
-    tmax: float = 1000,
-    num_time_steps: int = 1000,
     num_grid_points: int = 200,
+    t_eval: np.ndarray = np.linspace(500, 1000, 1001),
 ) -> dict:
     """
-    Integrate the Kuramoto model with nonlocal coupling using 4th order Runge-Kutta.
+    Integrate the Kuramoto model with nonlocal coupling.
 
     :param alpha: parameter alpha
     :param kappa: parameter kappa
@@ -132,52 +131,29 @@ def integrate(
     :return: dictionary containing parameters and simulation data
 
     """
-    tstart = time()
-
     # Write the parameters into a dictionary for future use.
     data_dict = dict()
     data_dict["alpha"] = alpha
     data_dict["kappa"] = kappa
-    data_dict["L"] = 1.0
     data_dict["N"] = num_grid_points
-    data_dict["tmin"] = tmin
-    data_dict["tmax"] = tmax
-    data_dict["dt"] = delta_t
-    data_dict["T"] = num_time_steps
-
-    nmax = int(tmax / delta_t)
-    n_above_thresh = int((tmax - tmin) / delta_t)
-    # Threshold itself
-    n_thresh = nmax - n_above_thresh
-    # Every nplt'th step is plotted
-    nplt = n_above_thresh / num_time_steps
+    data_dict["t_eval"] = t_eval
 
     (phi, omega) = initial_conditions(num_grid_points)
     delta_y = calc_dy(kappa, num_grid_points)
 
     data_dict["init"] = phi
 
-    save_data = list()
+    print("Computing the solution.")
+    sol = solve_ivp(
+        f_kuramoto,
+        [0, t_eval[-1]],
+        phi,
+        t_eval=t_eval,
+        args=(alpha, delta_y, omega),
+        rtol=1e-7,
+        atol=1e-10,
+    )
 
-    for i in np.arange(1, nmax + 1):
-        k_1 = f_kuramoto(alpha, delta_y, omega, phi)
-        k_2 = f_kuramoto(alpha, delta_y, omega, phi + 0.5 * delta_t * k_1)
-        k_3 = f_kuramoto(alpha, delta_y, omega, phi + 0.5 * delta_t * k_2)
-        k_4 = f_kuramoto(alpha, delta_y, omega, phi + delta_t * k_3)
-        phi = phi + delta_t / 6.0 * (k_1 + 2.0 * k_2 + 2.0 * k_3 + k_4)
-        phi[np.where(phi > np.pi)] = phi[np.where(phi > np.pi)] - 2 * np.pi
-        phi[np.where(phi < -np.pi)] = phi[np.where(phi < -np.pi)] + 2 * np.pi
-
-        if (i > n_thresh) and (i % nplt == 0):
-            save_data.append(phi)
-
-        if i % (np.floor(nmax / 100)) == 0:
-            sys.stdout.write(
-                "\r %9.1f"
-                % round((time() - tstart) / (float(i)) * (float(nmax) - float(i)), 1)
-                + " seconds left"
-            )
-            sys.stdout.flush()
-
-    data_dict["data"] = np.array(save_data)
+    data_dict["data"] = sol.y.T
+    data_dict["data"] = np.remainder(data_dict["data"], 2 * np.pi) - np.pi
     return data_dict
