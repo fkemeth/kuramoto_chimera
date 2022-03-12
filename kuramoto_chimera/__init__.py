@@ -46,8 +46,11 @@ def initial_conditions(num_grid_points: int) -> Tuple[np.ndarray, np.ndarray]:
         omega[k] = 0
     phi = np.zeros(num_grid_points)
     for k in range(0, num_grid_points):
-        phi[k] = 6.0 * np.exp(-30.0 * (float(k) / float(num_grid_points) - 0.5)
-                              ** 2) * (np.random.random() - 0.5)
+        phi[k] = (
+            6.0
+            * np.exp(-30.0 * (float(k) / float(num_grid_points) - 0.5) ** 2)
+            * (np.random.random() - 0.5)
+        )
     return phi, omega
 
 
@@ -61,9 +64,12 @@ def calc_dy(kappa: float, num_grid_points: int) -> np.ndarray:
     """
     delta_y = np.zeros(num_grid_points)
     for k in range(0, num_grid_points):
-        delta_y[k] = (kappa / 2.0) / (1.0 - np.exp(-kappa / 2.0)) * \
-            np.exp(-kappa * (min(num_grid_points - k, k)) /
-                   float(num_grid_points)) / float(num_grid_points)
+        delta_y[k] = (
+            (kappa / 2.0)
+            / (1.0 - np.exp(-kappa / 2.0))
+            * np.exp(-kappa * (min(num_grid_points - k, k)) / float(num_grid_points))
+            / float(num_grid_points)
+        )
     return delta_y
 
 
@@ -76,15 +82,22 @@ def calc_coupling(alpha: float, delta_y: np.ndarray, phi: np.ndarray) -> np.ndar
     :param phi: numpy array containing the phases of the snapshot
     :return: numpay array containing the coupling
     """
-    coupling = 1.0 / (2.0 * 1.0j) * \
-        (np.exp(1.0j * alpha + 1.0j * phi) *
-         np.fft.ifft(np.fft.fft(delta_y) *
-                     np.fft.fft(np.exp(-1j * phi))) - np.exp(-1.0j * alpha - 1.0j * phi) *
-         np.fft.ifft(np.fft.fft(delta_y) * np.fft.fft(np.exp(1j * phi))))
+    coupling = (
+        1.0
+        / (2.0 * 1.0j)
+        * (
+            np.exp(1.0j * alpha + 1.0j * phi)
+            * np.fft.ifft(np.fft.fft(delta_y) * np.fft.fft(np.exp(-1j * phi)))
+            - np.exp(-1.0j * alpha - 1.0j * phi)
+            * np.fft.ifft(np.fft.fft(delta_y) * np.fft.fft(np.exp(1j * phi)))
+        )
+    )
     return coupling
 
 
-def f_kuramoto(alpha: float, delta_y: np.ndarray, omega: np.ndarray, phi: np.ndarray) -> np.ndarray:
+def f_kuramoto(
+    alpha: float, delta_y: np.ndarray, omega: np.ndarray, phi: np.ndarray
+) -> np.ndarray:
     """
     Calculate the temporal derivative.
 
@@ -97,9 +110,15 @@ def f_kuramoto(alpha: float, delta_y: np.ndarray, omega: np.ndarray, phi: np.nda
     return omega - calc_coupling(alpha, delta_y, phi).real
 
 
-def integrate(kappa: float = 4.0, alpha: float = 1.457, delta_t: float = 0.01,
-              tmin: float = 500, tmax: float = 1000, num_time_steps: int = 1000,
-              num_grid_points: int = 200) -> dict:
+def integrate(
+    kappa: float = 4.0,
+    alpha: float = 1.457,
+    delta_t: float = 0.01,
+    tmin: float = 500,
+    tmax: float = 1000,
+    num_time_steps: int = 1000,
+    num_grid_points: int = 200,
+) -> dict:
     """
     Integrate the Kuramoto model with nonlocal coupling using 4th order Runge-Kutta.
 
@@ -153,8 +172,11 @@ def integrate(kappa: float = 4.0, alpha: float = 1.457, delta_t: float = 0.01,
             save_data.append(phi)
 
         if i % (np.floor(nmax / 100)) == 0:
-            sys.stdout.write("\r %9.1f" % round((time() - tstart) / (float(i)) *
-                                                (float(nmax) - float(i)), 1) + ' seconds left')
+            sys.stdout.write(
+                "\r %9.1f"
+                % round((time() - tstart) / (float(i)) * (float(nmax) - float(i)), 1)
+                + " seconds left"
+            )
             sys.stdout.flush()
 
     data_dict["data"] = np.array(save_data)
