@@ -28,10 +28,8 @@ Integrate Kuramoto phase oscillator model with nonlocal coupling..
 #                                                                             #
 ###############################################################################
 
-from time import time
-import numpy as np
-import sys
 from typing import Tuple
+import numpy as np
 
 from scipy.integrate import solve_ivp
 
