@@ -1,5 +1,5 @@
 """
-Copyright 2022 Felix P. Kemeth
+Copyright 2022 Felix P. Kemeth.
 
 This file is part of the program kuramoto_chimera.
 
@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with kuramoto_chimera.  If not, see <http://www.gnu.org/licenses/>.
 
-Integrate Kuramoto phase oscillator model with nonlocal coupling..
+Integrate Kuramoto phase oscillator model with nonlocal coupling.
 """
 
 ###############################################################################
