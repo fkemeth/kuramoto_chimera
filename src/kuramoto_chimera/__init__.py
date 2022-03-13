@@ -1,5 +1,5 @@
 """
-Copyright 2022 Felix P. Kemeth.
+Copyright 2022 Felix P. Kemeth
 
 This file is part of the program kuramoto_chimera.
 
@@ -39,7 +39,7 @@ def initial_conditions(num_grid_points: int) -> Tuple[np.ndarray, np.ndarray]:
     Specify initial conditions for the phases in intrinsic frequencies.
 
     :param num_grid_points: number of spatial grid points
-    :return: tuple of initial phases and frequencies per oscillator
+    :returns: tuple of initial phases and frequencies per oscillator
     """
     omega = np.zeros(num_grid_points)
     for k in range(0, num_grid_points):
@@ -60,7 +60,7 @@ def calc_dy(kappa: float, num_grid_points: int) -> np.ndarray:
 
     :param kappa: parameter kappa
     :param num_grid_points: number of spatial grid points
-    :return: numpy array containing the coupling kernel
+    :returns: numpy array containing the coupling kernel
     """
     delta_y = np.zeros(num_grid_points)
     for k in range(0, num_grid_points):
@@ -80,7 +80,7 @@ def calc_coupling(alpha: float, delta_y: np.ndarray, phi: np.ndarray) -> np.ndar
     :param alpha: parameter alpha
     :param delta_y: numpy array containing the coupling kernel
     :param phi: numpy array containing the phases of the snapshot
-    :return: numpay array containing the coupling
+    :returns: numpay array containing the coupling
     """
     coupling = (
         1.0
@@ -95,38 +95,36 @@ def calc_coupling(alpha: float, delta_y: np.ndarray, phi: np.ndarray) -> np.ndar
     return coupling
 
 
-def f_kuramoto(
-    time: float, phi: np.ndarray, alpha: float, delta_y: np.ndarray, omega: np.ndarray
-) -> np.ndarray:
+def f_kuramoto(time: float,  # pylint: disable=unused-argument
+               phi: np.ndarray,
+               alpha: float,
+               delta_y: np.ndarray,
+               omega: np.ndarray) -> np.ndarray:
     """
     Calculate the temporal derivative.
 
+    :param time: time step (not used here)
     :param alpha: parameter alpha
     :param delta_y: numpy array containing the coupling kernel
     :param omega: numpy array containing the frequencies of the snapshot
     :param phi: numpy array containing the phases of the snapshot
-    :return: numpay array containing the time derivatives of the phases
+    :returns: numpay array containing the time derivatives of the phases
     """
     return omega - calc_coupling(alpha, delta_y, phi).real
 
 
-def integrate(
-    kappa: float = 4.0,
-    alpha: float = 1.457,
-    num_grid_points: int = 200,
-    t_eval: np.ndarray = np.linspace(500, 1000, 1001),
-) -> dict:
+def integrate(alpha: float = 1.457,
+              kappa: float = 4.0,
+              num_grid_points: int = 200,
+              t_eval: np.ndarray = np.linspace(500, 1000, 1001)) -> dict:
     """
     Integrate the Kuramoto model with nonlocal coupling.
 
     :param alpha: parameter alpha
     :param kappa: parameter kappa
-    :param delta_t: delta t used for integration
-    :param tmin: time at which to start collecting simulation data
-    :param tmax: time until which to integrate and collect data
-    :param num_time_steps: number of equally-spaced snapshots to collect between tmin and tmax
     :param num_grid_points: number of spatial grid points
-    :return: dictionary containing parameters and simulation data
+    :param t_eval: time steps at which to sample simulation data
+    :returns: dictionary containing parameters and simulation data
 
     """
     # Write the parameters into a dictionary for future use.
